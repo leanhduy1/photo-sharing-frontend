@@ -1,11 +1,13 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const axiosClient = axios.create({
-    baseURL: 'http://localhost:8081/api',
+    baseURL: API_BASE_URL,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 });
 
 axiosClient.interceptors.request.use(
@@ -21,6 +23,10 @@ axiosClient.interceptors.response.use(
         if (error.response) {
             const { status, data } = error.response;            
             errorMessage = data?.error || getDefaultMessage(status);
+
+            if (status === 401) {
+                window.dispatchEvent(new CustomEvent('unauthorized'));
+            }
         } else if (error.request) {
             errorMessage = 'Unable to connect to server';
         } else {
@@ -34,6 +40,7 @@ axiosClient.interceptors.response.use(
 function getDefaultMessage(status) {
     const messages = {
         400: 'Invalid request',
+        401: 'Please login first',
         404: 'Resource not found',
         409: 'Resource already exists',
         500: 'Server error, please try again later',
