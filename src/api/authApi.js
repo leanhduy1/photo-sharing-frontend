@@ -9,6 +9,9 @@ const authApi = {
   },
   register(userData) {
     return axiosClient.post('/user', userData);
+  },
+  checkAuth() {
+    return axiosClient.get('/admin/check');
   }
 }
 

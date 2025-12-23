@@ -1,6 +1,5 @@
 import { Divider, List, ListItem, ListItemText, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import "./styles.css";
 import { useEffect, useState } from "react";
 import userApi from "../../api/userApi";
 import React from "react";

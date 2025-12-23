@@ -6,7 +6,6 @@ import UserDetail from "./components/UserDetail";
 import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import LoginRegister from "./components/LoginRegister";
-import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const AppContent = () => {
@@ -37,27 +36,11 @@ const AppContent = () => {
           <Grid item sm={9}>
             <Paper className="main-grid-item">
               <Routes>
-                <Route path="/users/:userId" element={
-                  <ProtectedRoute>
-                    <UserDetail />
-                  </ProtectedRoute>
-                }/>
-
-                <Route path="/photos/:userId" element={
-                  <ProtectedRoute>
-                    <UserPhotos />
-                  </ProtectedRoute>    
-                }/>
-
-                <Route path="/users" element={
-                  <ProtectedRoute>
-                    <UserList />
-                  </ProtectedRoute>
-                }/>
-
                 <Route path="/" element={<Navigate to={`/users/${user._id}`} replace />} />
+                <Route path="/users/:userId" element={<UserDetail />} />
+                <Route path="/photos/:userId" element={<UserPhotos />} />
                 <Route path="/login" element={<Typography variant="h6">You are already logged in</Typography>} />
-                <Route path="*" element={<Typography variant="h6">Route not found</Typography>} />
+                <Route path="*" element={<Typography variant="h6">Page not found</Typography>} />
               </Routes>
             </Paper>
           </Grid>

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import authApi from '../api/authApi'; 
 
 const AuthContext = createContext(null);
 
@@ -8,11 +9,21 @@ export function AuthProvider({ children }) {
   const [photosRefesh, setPhotosRefresh] = useState(0);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    const checkAuth = async () => {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        try {
+          const userData = await authApi.checkAuth();
+          setUser(userData);
+        } catch (error) {
+          localStorage.removeItem('user');
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
 
     const handleUnauthorized = () => {
       logout();

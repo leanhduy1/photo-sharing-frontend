@@ -2,7 +2,6 @@ import { Typography, Button } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import userApi from "../../api/userApi";
-import "./styles.css";
 
 function UserDetail() {
     const { userId } = useParams();
@@ -41,21 +40,21 @@ function UserDetail() {
 
     return (
         <div>
-            <Typography variant="h4" gutterBottom>
-                {user.first_name} {user.last_name}
-            </Typography>
-            {user.location && (
-                <Typography variant="body1">Location: {user.location}</Typography>
-            )}
-            {user.occupation && (
-                <Typography variant="body1">Occupation: {user.occupation}</Typography>
-            )}
-            {user.description && (
-                <Typography variant="body1" paragraph>Description: {user.description}</Typography>
-            )}
-            <Button variant="contained" component={Link} to={`/photos/${user._id}`}>
-                View Photos
-            </Button>
+          <Typography variant="h4" gutterBottom>
+            {user.first_name} {user.last_name}
+          </Typography>
+          {user.location && (
+            <Typography variant="body1">Location: {user.location}</Typography>
+          )}
+          {user.occupation && (
+            <Typography variant="body1">Occupation: {user.occupation}</Typography>
+          )}
+          {user.description && (
+            <Typography variant="body1" paragraph>Description: {user.description}</Typography>
+          )}
+          <Button variant="contained" component={Link} to={`/photos/${user._id}`}>
+            View Photos
+          </Button>
         </div>
     );
 }

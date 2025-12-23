@@ -1,224 +1,163 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import authApi from "../../api/authApi";
-import { Alert, Button, TextField, Typography, Box, Paper } from '@mui/material'
+import { Alert, Button, TextField, Typography, Box, Paper } from '@mui/material';
+import { useForm } from 'react-hook-form';
+import { useState } from "react";
 
 function LoginRegister() {
   const navigate = useNavigate();
   const { user, login } = useAuth();
 
-  // Login state
-  const [loginName, setLoginName] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState(null);
+  const [loginApiError, setLoginApiError] = useState(null);
+  const [registerApiError, setRegisterApiError] = useState(null);
 
-  // Register state
-  const [registerData, setRegisterData] = useState({
-    login_name: '',
-    password: '',
-    confirm_password: '',
-    first_name: '',
-    last_name: '',
-    location: '',
-    description: '',
-    occupation: ''
-  });
-  const [registerLoading, setRegisterLoading] = useState(false);
-  const [registerError, setRegisterError] = useState(null);
+  // Form cho Login
+  const {
+    register: loginRegister,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors, isSubmitting: loginSubmitting }
+  } = useForm();
+
+  // Form cho Register
+  const {
+    register: registerRegister,
+    handleSubmit: handleRegisterSubmit,
+    formState: { errors: registerErrors, isSubmitting: registerSubmitting },
+    watch
+  } = useForm();
 
   if (user) {
     return <Typography variant="h6">You already logged in</Typography>;
   }
 
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoginError(null);
-    setLoginLoading(true);
-
+  const onLoginSubmit = async (data) => {
+    setLoginApiError(null);
     try {
-      const userData = await authApi.login(loginName, loginPassword);
+      const userData = await authApi.login(data.login_name, data.password);
       login(userData);
       navigate(`/users/${userData._id}`);
     } catch (error) {
-      setLoginError(error.message);
-    } finally {
-      setLoginLoading(false);
+      setLoginApiError(error.message);
     }
-  }
+  };
 
-  const handleRegisterChange = (field) => (e) => {
-    setRegisterData((prev) => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-    setRegisterError(null);
-  }
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setRegisterError(null);
-    
-    if (registerData.password !== registerData.confirm_password) {
-      setRegisterError("Passwords do not match");
-      return;
-    }
-
-    if (!registerData.login_name.trim()) {
-      setRegisterError("Login name is required");
-      return;
-    }
-
-    if (!registerData.password.trim()) {
-      setRegisterError("Password is required");
-      return;
-    }
-
-    if (!registerData.first_name.trim()) {
-      setRegisterError("First name is required");
-      return;
-    }
-
-    if (!registerData.last_name.trim()) {
-      setRegisterError("Last name is required");
-      return;
-    }
-
-    setRegisterLoading(true);
-
+  const onRegisterSubmit = async (data) => {
+    setRegisterApiError(null);
     try {
-      const newUser = await authApi.register(registerData);
-      await authApi.login(registerData.login_name, registerData.password);
+      const newUser = await authApi.register(data);
+      await authApi.login(data.login_name, data.password);
       login(newUser);
       navigate(`/users/${newUser._id}`);
     } catch (error) {
-      setRegisterError(error.message);
-    } finally {
-      setRegisterLoading(false);
+      setRegisterApiError(error.message);
     }
-  }
+  };
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center'}}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3 }}>
       {/* Login Form */}
       <Paper sx={{ p: 4, maxWidth: 400, width: '100%' }}>
-        <Typography variant="h5">Login</Typography>
-        
-        <form onSubmit={handleLogin}>
+        <Typography variant="h5" sx={{ mb: 2 }}>Login</Typography>
+
+        <form onSubmit={handleLoginSubmit(onLoginSubmit)}>
           <TextField 
             fullWidth
             label="Login Name"
-            value={loginName}
-            onChange={(e) => setLoginName(e.target.value)}
             margin="normal"
-            required
+            {...loginRegister('login_name', { required: 'Login name is required' })}
+            error={!!loginErrors.login_name}
+            helperText={loginErrors.login_name?.message}
           />
-          
+
           <TextField 
             fullWidth
             label="Password"
             type="password"
-            value={loginPassword}
-            onChange={(e) => setLoginPassword(e.target.value)}
             margin="normal"
-            required
+            {...loginRegister('password', { required: 'Password is required' })}
+            error={!!loginErrors.password}
+            helperText={loginErrors.password?.message}
           />
 
-          {loginError && <Alert severity="error" sx={{ mb: 1 }}>{loginError}</Alert>}
-
-          <Button type="submit" fullWidth variant="contained" disabled={loginLoading || !loginName}>
-            {loginLoading ? 'Logging in...' : 'Login'}
+          {loginApiError && <Alert severity="error" sx={{ mt: 2 }}>{loginApiError}</Alert>}
+          
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }} disabled={loginSubmitting}>
+            {loginSubmitting ? 'Logging in...' : 'Login'}
           </Button>
         </form>
       </Paper>
 
       {/* Register Form */}
       <Paper sx={{ p: 4, maxWidth: 400, width: '100%' }}>
-        <Typography variant="h5">Register</Typography>
+        <Typography variant="h5" sx={{ mb: 2 }}>Register</Typography>
         
-        <form onSubmit={handleRegister}>
+        <form onSubmit={handleRegisterSubmit(onRegisterSubmit)}>
           <TextField 
             fullWidth
             label="Login Name"
-            value={registerData.login_name}
-            onChange={handleRegisterChange('login_name')}
             margin="normal"
-            required
+            {...registerRegister('login_name', { required: 'Login name is required' })}
+            error={!!registerErrors.login_name}
+            helperText={registerErrors.login_name?.message}
           />
-          
+
           <TextField 
             fullWidth
             label="Password"
             type="password"
-            value={registerData.password}
-            onChange={handleRegisterChange('password')}
             margin="normal"
-            required
+            {...registerRegister('password', { required: 'Password is required' })}
+            error={!!registerErrors.password}
+            helperText={registerErrors.password?.message}
           />
 
           <TextField
             fullWidth
             label="Confirm Password"
             type="password"
-            value={registerData.confirm_password}
-            onChange={handleRegisterChange('confirm_password')}
             margin="normal"
-            required
+            {...registerRegister('confirm_password', {
+              required: 'Please confirm password',
+              validate: value => value === watch('password') || 'Passwords do not match'
+            })}
+            error={!!registerErrors.confirm_password}
+            helperText={registerErrors.confirm_password?.message}
           />
 
           <TextField
             fullWidth
             label="First Name"
-            value={registerData.first_name}
-            onChange={handleRegisterChange('first_name')}
             margin="normal"
-            required
+            {...registerRegister('first_name', { required: 'First name is required' })}
+            error={!!registerErrors.first_name}
+            helperText={registerErrors.first_name?.message}
           />
 
           <TextField
             fullWidth
             label="Last Name"
-            value={registerData.last_name}
-            onChange={handleRegisterChange('last_name')}
             margin="normal"
-            required
+            {...registerRegister('last_name', { required: 'Last name is required' })}
+            error={!!registerErrors.last_name}
+            helperText={registerErrors.last_name?.message}
           />
 
-          <TextField
-            fullWidth
-            label="Location"
-            value={registerData.location}
-            onChange={handleRegisterChange('location')}
-            margin="normal"
-          />
+          <TextField fullWidth label="Location" margin="normal" {...registerRegister('location')} />
+          
+          <TextField fullWidth label="Description" margin="normal" {...registerRegister('description')} />
+          
+          <TextField fullWidth label="Occupation" margin="normal" {...registerRegister('occupation')} />
 
-          <TextField
-            fullWidth
-            label="Description"
-            value={registerData.description}
-            onChange={handleRegisterChange('description')}
-            margin="normal"
-          />
+          {registerApiError && <Alert severity="error" sx={{ mt: 2 }}>{registerApiError}</Alert>}
 
-          <TextField
-            fullWidth
-            label="Occupation"
-            value={registerData.occupation}
-            onChange={handleRegisterChange('occupation')}
-            margin="normal"
-          />
-
-          {registerError && <Alert severity="error" sx={{ mb: 1 }}>{registerError}</Alert>}
-
-          <Button type="submit" fullWidth variant="contained" disabled={registerLoading || !registerData.login_name}>
-            {registerLoading ? 'Registering...' : 'Register'}
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }} disabled={registerSubmitting}>
+            {registerSubmitting ? 'Registering...' : 'Register'}
           </Button>
         </form>
       </Paper>
     </Box>
-  )
+  );
 }
 
 export default LoginRegister;
