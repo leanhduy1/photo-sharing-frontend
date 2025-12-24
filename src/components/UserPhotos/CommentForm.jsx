@@ -1,53 +1,52 @@
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 
 function CommentForm({ photoId, onSubmitComment }) {
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors, isSubmitting }, 
-    reset 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setError,
+    clearErrors,
   } = useForm();
-  const [submitError, setSubmitError] = useState(null);
 
   const onSubmit = async (data) => {
-    setSubmitError(null);
+    setError("comment", null);
     try {
       await onSubmitComment(photoId, data.comment);
-      reset(); // Clear input sau khi submit thành công
+      reset();
     } catch (error) {
-      setSubmitError(error.message);
+      setError("comment", { message: error.message });
     }
   };
 
   return (
-    <Box 
-      component="form" 
-      onSubmit={handleSubmit(onSubmit)} 
-      sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}
+    <Box
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      sx={{ display: "flex", flexDirection: "column", gap: 1 }}
     >
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-        <TextField 
+      <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+        <TextField
           fullWidth
           multiline
           size="small"
           placeholder="Add a comment..."
-          {...register('comment', { 
-            required: 'Comment cannot be empty',
-            validate: value => value.trim() !== '' || 'Comment cannot be empty'
+          {...register("comment", {
+            required: "Comment cannot be empty",
+            validate: (value) => value.trim() !== "" || "Comment cannot be empty",
           })}
           error={!!errors.comment}
           helperText={errors.comment?.message}
           disabled={isSubmitting}
+          onBlur={() => clearErrors("comment")}
         />
-        
-        <Button type="submit" variant="contained" disabled={isSubmitting} sx={{ minWidth: '80px' }}>
-          {isSubmitting ? 'Adding...' : 'Add'}
+
+        <Button type="submit" variant="contained" disabled={isSubmitting} sx={{ minWidth: "80px" }}>
+          {isSubmitting ? "Adding..." : "Add"}
         </Button>
       </Box>
-
-      {submitError && (<Typography variant="body2" color="error">{submitError}</Typography>)}
     </Box>
   );
 }
