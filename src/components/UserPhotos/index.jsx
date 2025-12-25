@@ -164,6 +164,11 @@ function UserPhotos() {
     }
   };
 
+  const handleDownload = (photoId) => {
+    const downloadUrl = photoApi.getDownloadUrl(photoId);
+    window.open(downloadUrl, "_blank");
+  };
+
   if (loading) {
     return <Typography sx={{ p: 2 }}>Loading photos...</Typography>;
   }
@@ -196,15 +201,21 @@ function UserPhotos() {
               {formatDateTime(photo.date_time)}
             </Typography>
 
-            {user._id === photo.user_id && (
-              <Button
-                variant="contained"
-                onClick={() => setDeletePhoto({ photoId: photo._id })}
-                sx={{ mt: 1 }}
-              >
-                Delete Photo
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, marginTop: 1 }}>
+              <Button size="small" variant="outlined" onClick={() => handleDownload(photo._id)}>
+                Download
               </Button>
-            )}
+
+              {user._id === photo.user_id && (
+                <Button
+                  variant="outlined"
+                  onClick={() => setDeletePhoto({ photoId: photo._id })}
+                  size="small"
+                >
+                  Delete Photo
+                </Button>
+              )}
+            </Box>
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
               <Button

@@ -1,4 +1,5 @@
 import axiosClient from "./axiosClient";
+import { API_BASE_URL } from "../config";
 
 const photoApi = {
   getByUserId(userId) {
@@ -28,6 +29,9 @@ const photoApi = {
   },
   deletePhoto(photoId) {
     return axiosClient.delete(`/photo/${photoId}`);
+  },
+  getDownloadUrl(photoId) {
+    return `${API_BASE_URL}/photo/download/${photoId}`;
   },
 };
 
