@@ -26,6 +26,9 @@ const photoApi = {
       comment: commentText,
     });
   },
+  deletePhoto(photoId) {
+    return axiosClient.delete(`/photo/${photoId}`);
+  },
 };
 
 export default photoApi;

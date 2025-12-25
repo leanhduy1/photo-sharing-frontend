@@ -32,6 +32,7 @@ function UserPhotos() {
 
   const [deleteComment, setDeleteComment] = useState(null);
   const [editComment, setEditComment] = useState(null);
+  const [deletePhoto, setDeletePhoto] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,6 +60,7 @@ function UserPhotos() {
   const handleLike = async (photoId) => {
     try {
       const result = await photoApi.toggleLike(photoId);
+
       setPhotos((prevPhotos) =>
         prevPhotos.map((photo) => {
           if (photo._id === photoId) {
@@ -116,6 +118,20 @@ function UserPhotos() {
       setDeleteComment(null);
     } catch (error) {
       setDeleteComment(null);
+      throw error;
+    }
+  };
+
+  const handlePhotoDelete = async () => {
+    if (!deletePhoto) return;
+
+    try {
+      await photoApi.deletePhoto(deletePhoto.photoId);
+
+      setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo._id !== deletePhoto.photoId));
+      setDeletePhoto(null);
+    } catch (error) {
+      setDeletePhoto(null);
       throw error;
     }
   };
@@ -179,6 +195,16 @@ function UserPhotos() {
             <Typography variant="body2" color="text.secondary">
               {formatDateTime(photo.date_time)}
             </Typography>
+
+            {user._id === photo.user_id && (
+              <Button
+                variant="contained"
+                onClick={() => setDeletePhoto({ photoId: photo._id })}
+                sx={{ mt: 1 }}
+              >
+                Delete Photo
+              </Button>
+            )}
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
               <Button
@@ -264,6 +290,21 @@ function UserPhotos() {
             Cancel
           </Button>
           <Button onClick={handleCommentDelete} color="error" size="small">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={!!deletePhoto} onClose={() => setDeletePhoto(null)}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+
+        <DialogContent>Are you sure you want to delete this photo?</DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setDeletePhoto(null)} size="small">
+            Cancel
+          </Button>
+          <Button onClick={handlePhotoDelete} color="error" size="small">
             Delete
           </Button>
         </DialogActions>
